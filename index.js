@@ -64,6 +64,22 @@ app.get("/username", async (req, res) => {
 
 })
 
+app.get("/getcurrentid", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+
+        let result = await pool
+            .request()
+            .query("SELECT MAX(CUSID) AS currentId FROM CUSTOMER");
+
+        res.json({ 
+            currentId: result.recordset[0].currentId || 0 
+        });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
 
 app.post("/api/adduserdetail", async (req, res) => {
 
