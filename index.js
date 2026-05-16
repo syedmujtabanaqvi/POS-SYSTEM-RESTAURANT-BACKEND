@@ -45,24 +45,21 @@ app.get("/MenuItems", async (req, res) => {
 
 
 
-app.get("/messaege", (req, res) => {
-
-    res.send("Thank you for your purchase!")
-})
-
-app.get("/username", async (req, res) => {
-
-    try {
-        const pool = await sql.connect(config);
-        let result = await pool.request().query("select NAME , CUSID from CUSTOMER")
-        res.json(result.recordset[0]);
-    }
-    catch (err) {
-        return res.status(500).send(err.message);
-    }
 
 
-})
+// app.get("/username", async (req, res) => {
+
+//     try {
+//         const pool = await sql.connect(config);
+//         let result = await pool.request().query("select NAME , CUSID from CUSTOMER")
+//         res.json(result.recordset[0]);
+//     }
+//     catch (err) {
+//         return res.status(500).send(err.message);
+//     }
+
+
+// })
 
 app.get("/getcurrentid", async (req, res) => {
     try {
@@ -70,7 +67,63 @@ app.get("/getcurrentid", async (req, res) => {
 
         let result = await pool
             .request()
-            .query("SELECT MAX(CUSID) AS currentId FROM CUSTOMER");
+            .query("SELECT MAX(CUSID)  AS currentId FROM CUSTOMER");
+
+        res.json({ 
+            currentId: result.recordset[0].currentId || 0 
+        });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+
+app.get("/getcurrentorder", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+
+        let result = await pool
+            .request()
+            .query("SELECT MAX(Order_ID) AS currentId FROM Orders");
+
+        res.json({ 
+            currentId: result.recordset[0].currentId || 0 
+        });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+//getname
+app.get("/getname", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+
+        let result = await pool
+            .request()
+            .query("SELECT MAX(NAME) AS cName FROM CUSTOMER");
+
+        res.json({ 
+            cName: result.recordset[0].cName || 0 
+        });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+
+
+//date-api
+app.get("/date-api", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+
+        let result = await pool
+            .request()
+            .query("SELECT MAX(OrderDate) AS currentId FROM Orders");
 
         res.json({ 
             currentId: result.recordset[0].currentId || 0 
@@ -131,6 +184,20 @@ app.get("/item", async (req, res) => {
     }
 });
 
+//Inventoryitem
+
+app.get("/Inventoryitem", async (req, res) => {
+    try {
+        let pool = await sql.connect(config);
+        let result = await pool.request().query("SELECT * FROM MenuItems");
+
+
+        return res.json(result.recordset);
+
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+});
 
 
 app.use(express.json());
