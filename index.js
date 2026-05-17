@@ -77,6 +77,22 @@ app.get("/getcurrentid", async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+// /api/get-Phone-number
+
+app.get("/getPhonenumber", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+
+        let result = await pool
+            .request()
+            .query("SELECT PHONENUMBER AS PHONE FROM CUSTOMER where CUSID = (SELECT MAX(CUSID) FROM CUSTOMER)");
+
+        res.json({ currentId: result.recordset[0] });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
 
 
 app.get("/getcurrentorder", async (req, res) => {
@@ -103,18 +119,34 @@ app.get("/getname", async (req, res) => {
 
         let result = await pool
             .request()
-            .query("SELECT MAX(NAME) AS cName FROM CUSTOMER");
+            .query("SELECT NAME FROM CUSTOMER where CUSID = (SELECT MAX(CUSID) FROM CUSTOMER)");
 
-        res.json({ 
-            cName: result.recordset[0].cName || 0 
-        });
+        res.json(result.recordset[0]);
 
     } catch (err) {
         res.status(500).send(err.message);
     }
 });
 
+// sendquantity
 
+app.post("/sendquantity", async (req, res) => {
+    try {
+        const { ItemCode, Quantity } = req.body;
+
+        let pool = await sql.connect(config);
+
+        await pool.request()
+            .input("ItemCode", sql.Int, ItemCode)
+            .input("Quantity", sql.Int, Quantity)
+            .query(` INSERT INTO Orders (ItemCode, Quantity)VALUES (@ItemCode, @Quantity)`);
+
+        res.json({ message: "Order saved" });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
 
 //date-api
 app.get("/date-api", async (req, res) => {
