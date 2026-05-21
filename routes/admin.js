@@ -22,5 +22,29 @@ router.get("/TOTALORDERS", async (req, res) => {
 
 
 
+// ADD FOOD items
+router.post("/ADDFOODITEMS", async (req, res) => {
+    try {
 
+        const { ItemName, Price, Category, Description, IMAGEURL, IsAvailable } = req.body;
+
+        let pool = await sql.connect(config);
+
+        await pool.request()
+            .input("ItemName", sql.VarChar, ItemName)
+            .input("Price", sql.Int, Price)
+            .input("Category", sql.VarChar, Category)
+            .input("Description", sql.VarChar, Description)
+            .input("IsAvailable", sql.VarChar, IsAvailable)
+            .input("IMAGEURL", sql.VarChar, IMAGEURL)
+
+            .query(`
+    INSERT INTO MenuItems (ItemName, Price, Category,Description, IMAGEURL, IsAvailable) VALUES (@ItemName, @Price, @Category, @Description,@IMAGEURL,@IsAvailable)
+  `);
+        return res.json({ message: "Inserted successfully" });
+
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
  module.exports = router;
