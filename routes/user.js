@@ -75,6 +75,29 @@ router.get("/GETCURRENTID", async (req, res) => {
     }
 });
 
+// SEND ORDER ITEMS TO DB 
+ router.post("/SENDORDERITEMS", async (req, res) => {
+    try {
+        const { Order_ID , ItemCode ,Quantity } = req.body;
+
+        let pool = await sql.connect(config);
+
+        for (let item of OrderItems) {
+            await pool.request()
+                .input("Order_ID", sql.BigInt, item.Order_ID)
+                .input("ItemCode", sql.Int, item.ItemCode)
+                .input("Quantity", sql.Int, item.Quantity)
+                .query(`
+                    INSERT INTO OrderItems (Order_ID, ItemCode, Quantity)  VALUES (@Order_ID, @ItemCode, @Quantity)
+                `);
+        }
+
+        res.json({ message: "Order items saved" });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
 
 // GET PHONE NUMBER
 
