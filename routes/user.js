@@ -11,6 +11,7 @@ router.post("/ADDUSERDETAILS", async (req, res) => {
 
     try {
         const { NAME, PHONENUMBER } = req.body;
+    
 
         let pool = await sql.connect(config);
         await pool.request()
@@ -75,20 +76,75 @@ router.get("/GETCURRENTID", async (req, res) => {
     }
 });
 
-// SEND ORDER ITEMS TO DB 
- router.post("/SENDORDERITEMS", async (req, res) => {
+// GENERATE ORDER ID
+// router.post("/GENERATEORDERID",async(req,res)=>{
+//     try{
+//         const {CustomerID} = req.body;
+//         let pool = await sql.connect(config);
+
+//         await pool.request()
+//             .input("CustomerID", sql.VarChar, CustomerID)
+//             .query(`INSERT INTO Orders (CustomerID) VALUES (@CustomerID) `)
+
+//         return res.json({ message: "Inserted successfully" });
+//     }
+// catch(err){
+//     res.status(500).send(err.message)
+
+// }
+// })
+
+router.post("/GENERATEORDERID", async (req, res) => {
+
     try {
-        const { Order_ID , ItemCode ,Quantity } = req.body;
+
+        const { CustomerID } = req.body;
+
+        let pool = await sql.connect(config);
+
+        const result = await pool.request()
+            .input("CustomerID", sql.Int, CustomerID)
+            .query(`
+                INSERT INTO Orders (CustomerID)
+                OUTPUT INSERTED.Order_ID
+                VALUES (@CustomerID)
+            `);
+
+        const orderId = result.recordset[0].Order_ID;
+
+        res.json({
+            success: true,
+            Order_ID: orderId
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+
+    }
+});
+
+// SEND ORDER ITEMS TO DB 
+router.post("/SENDORDERITEMS", async (req, res) => {
+    try {
+
+        const { OrderItems } = req.body;
 
         let pool = await sql.connect(config);
 
         for (let item of OrderItems) {
+
             await pool.request()
                 .input("Order_ID", sql.BigInt, item.Order_ID)
                 .input("ItemCode", sql.Int, item.ItemCode)
                 .input("Quantity", sql.Int, item.Quantity)
                 .query(`
-                    INSERT INTO OrderItems (Order_ID, ItemCode, Quantity)  VALUES (@Order_ID, @ItemCode, @Quantity)
+                    INSERT INTO OrderItems 
+                    (Order_ID, ItemCode, Quantity)  
+                    VALUES (@Order_ID, @ItemCode, @Quantity)
                 `);
         }
 
@@ -98,6 +154,7 @@ router.get("/GETCURRENTID", async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
 
 // GET PHONE NUMBER
 
