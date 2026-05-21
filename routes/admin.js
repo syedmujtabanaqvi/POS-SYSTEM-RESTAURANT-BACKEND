@@ -61,6 +61,20 @@ router.get("/Inventoryitem", async (req, res) => {
 
 // MENU ITEMS
 
+router.get("/MenuItems", async (req, res) => {
+
+    try {
+
+        let pool = await sql.connect(config)
+
+        let result = await pool.request().query("SELECT COUNT(*) AS TotalOrders FROM MenuItems");
+
+        res.json(result.recordset[0].TotalOrders);
+    }
+    catch (err) {
+        res.send(error.message)
+    }
+});
 
 // ADD FOOD items
 router.post("/ADDFOODITEMS", async (req, res) => {
