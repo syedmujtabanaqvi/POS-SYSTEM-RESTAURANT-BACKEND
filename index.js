@@ -465,7 +465,7 @@ const loginRouts = require("./routes/user")
 const userRouts = require("./routes/login")
 
 
-app.use("/login",loginRouts)
+app.use("/",loginRouts)
 app.use("/user",userRouts)
 
 app.listen(5000, () => {
