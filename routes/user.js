@@ -26,7 +26,18 @@ router.post("/ADDUSERDETAILS", async (req, res) => {
 })
 
 // FOOD CARD API 
+router.get("/FOODITEMS", async (req, res) => {
+    try {
+        let pool = await sql.connect(config);
+        let result = await pool.request().query("SELECT * FROM MenuItems");
 
+
+        return res.json(result.recordset);
+
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+});
 
 
 
