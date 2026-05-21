@@ -350,7 +350,7 @@
 
 
 
-// //app.use(express.json());
+// app.use(express.json());
 
 // const users = [
 //     { email: "admin@gmail.com", password: "1234", role: "admin" },
@@ -461,8 +461,11 @@ app.use(express.json())
 app.use(cors());
 app.use(express.json());
 
-const userRouts = require("./routes/user")
+const loginRouts = require("./routes/user")
+const userRouts = require("./routes/login")
 
+
+app.use("/login",loginRouts)
 app.use("/user",userRouts)
 
 app.listen(5000, () => {
