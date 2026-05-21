@@ -1,11 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const cors = require("cors");
+const sql = require("mssql");
+const config = require('../db');
 
 
-
-router.get('/',(req,res) =>{
-
-res.send('ki haal han ');
-
-})
  module.exports = router;
