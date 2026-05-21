@@ -5,6 +5,32 @@ const sql = require("mssql");
 const config = require('../db');
 
 
+
+// ADD USER DETAILS NAME & PHONE NUMBER
+router.post("/ADDUSERDETAILS", async (req, res) => {
+
+    try {
+        const { NAME, PHONENUMBER } = req.body;
+
+        let pool = await sql.connect(config);
+        await pool.request()
+            .input("NAME", sql.VarChar, NAME)
+            .input("PHONENUMBER", sql.Int, PHONENUMBER)
+            .query(`INSERT INTO CUSTOMER (NAME,PHONENUMBER) VALUES (@NAME,@PHONENUMBER) `)
+
+        return res.json({ message: "Inserted successfully" });
+    }
+    catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+})
+
+// FOOD CARD API 
+
+
+
+
+
 // GET NAME 
 router.get("/username", async (req, res) => {
 
