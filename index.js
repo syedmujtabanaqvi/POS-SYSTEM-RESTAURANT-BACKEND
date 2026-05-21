@@ -461,11 +461,10 @@ app.use(express.json())
 app.use(cors());
 app.use(express.json());
 
-const loginRouts = require("./routes/user")
-const userRouts = require("./routes/login")
+const userRouts = require("./routes/user")
+const LoginRouts = require("./routes/login")
 
-
-app.use("/",loginRouts)
+app.use("/",LoginRouts)
 app.use("/user",userRouts)
 
 app.listen(5000, () => {

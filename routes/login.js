@@ -5,6 +5,17 @@ const sql = require("mssql");
 const config = require('../db');
 
 
+router.get("/username", async (req, res) => {
+
+    try {
+        const pool = await sql.connect(config);
+        let result = await pool.request().query("select NAME , CUSID from CUSTOMER")
+        res.json(result.recordset[0]);
+    }
+    catch (err) {
+        return res.status(500).send(err.message);
+    }
+})
 
 
 const users = [
@@ -16,7 +27,7 @@ router.post("/loginuser/login", (req, res) => {
         const { email, password } = req.body;
         
    
-        console.log("Frontend se ye data aaya:", { email, password });
+        console.log("data from frontend:", { email, password });
 
         const user = users.find(
             u => u.email === email && u.password === password
