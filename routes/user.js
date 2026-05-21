@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/',(req,res) =>{
 
-res.send('ki haal han ');
+res.send('hello');
 
 })
  module.exports = router;
