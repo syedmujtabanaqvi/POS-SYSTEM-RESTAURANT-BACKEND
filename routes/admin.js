@@ -20,6 +20,46 @@ router.get("/TOTALORDERS", async (req, res) => {
     }
 });
 
+// TOTAL SALES
+router.get("/TOTALSALES", async (req, res) => {
+    try {
+        let pool = await sql.connect(config);
+        
+        let result = await pool.request().query(`
+            SELECT SUM(oi.Quantity * m.Price) AS GrandTotal 
+            FROM Orders o 
+            INNER JOIN OrderItems oi ON o.Order_ID = oi.Order_ID 
+            INNER JOIN MenuItems m ON oi.ItemCode = m.ItemCode;
+        `);
+
+        // SQL ka alias 'GrandTotal' tha, isliye yahan bhi GrandTotal likhenge
+        // Agar recordset khali ho to fallback ke liye 0 bhej dete hain
+        const totalSales = result.recordset[0]?.GrandTotal || 0;
+        
+        // Response ko ek proper object mein bhejna zyada behtar hota hai
+        res.json({ grandTotal: totalSales });
+        
+    } catch (err) {
+        // Variable name fix kiya: err.message
+        res.status(500).send(err.message);
+    }
+});
+
+// //Inventoryitem
+router.get("/Inventoryitem", async (req, res) => {
+    try {
+        let pool = await sql.connect(config);
+        let result = await pool.request().query("SELECT * FROM MenuItems");
+
+
+        return res.json(result.recordset);
+
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+});
+
+// MENU ITEMS
 
 
 // ADD FOOD items
