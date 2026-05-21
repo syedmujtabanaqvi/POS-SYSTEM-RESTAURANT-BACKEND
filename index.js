@@ -463,7 +463,10 @@ app.use(express.json());
 
 const userRouts = require("./routes/user")
 const LoginRouts = require("./routes/login")
+const adminRouts = require("./routes/admin")
 
+
+app.use("/admin",adminRouts)
 app.use("/",LoginRouts)
 app.use("/user",userRouts)
 
