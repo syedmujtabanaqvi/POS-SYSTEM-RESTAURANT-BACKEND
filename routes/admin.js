@@ -5,7 +5,7 @@ const sql = require("mssql");
 const config = require('../db');
 
 // TOTAL ORDER IN ADMIN PORTL
-router.get("/TotalOrders", async (req, res) => {
+router.get("/TOTALORDERS", async (req, res) => {
 
     try {
 
