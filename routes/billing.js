@@ -95,7 +95,27 @@ router.get("/GETPHONENUMBRT", async (req, res) => {
 });
 
 
+router.get("/ORDERTOTAL", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool
+            .request()
+            .query(`
+                SELECT 
+                    ISNULL(ROUND(SUM(oi.Quantity * m.Price) * 1.05, 0), 0) AS FinalBillWithTax 
+                FROM OrderItems oi 
+                INNER JOIN MenuItems m ON oi.ItemCode = m.ItemCode 
+                WHERE oi.Order_ID = (SELECT MAX(Order_ID) FROM Orders);
+            `);
 
+        const totalAmount = result.recordset[0] ? result.recordset[0].FinalBillWithTax : 0;
+        
+        res.json({ ordertotal: totalAmount });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
 
 
  module.exports = router;
