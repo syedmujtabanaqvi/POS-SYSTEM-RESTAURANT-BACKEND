@@ -131,9 +131,9 @@ router.get("/base-price", async (req, res) => {
             WHERE oi.Order_ID = (SELECT MAX(Order_ID) FROM Orders);
             `);
 
-        const totalAmount = result.recordset[0] ;
+        const baseprice = result.recordset[0] ? result.recordset[0].TotalAmount : 0;
 
-        res.json({ ordertotal: totalAmount });
+        res.json({ basepricetotal: baseprice });
 
     } catch (err) {
         res.status(500).send(err.message);
