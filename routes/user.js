@@ -49,7 +49,7 @@ router.get("/username", async (req, res) => {
 
     try {
         const pool = await sql.connect(config);
-        let result = await pool.request().query("select NAME , CUSID from CUSTOMER")
+        let result = await pool.request().query("select NAME from CUSTOMER where CUSID =(SELECT MAX(CUSID)FROM CUSTOMER) ")
         res.json(result.recordset[0]);
     }
     catch (err) {

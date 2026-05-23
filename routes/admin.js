@@ -24,7 +24,7 @@ router.get("/TOTALORDERS", async (req, res) => {
 router.get("/TOTALSALES", async (req, res) => {
     try {
         let pool = await sql.connect(config);
-        
+
         let result = await pool.request().query(`
             SELECT SUM(oi.Quantity * m.Price) AS GrandTotal 
             FROM Orders o 
@@ -32,15 +32,11 @@ router.get("/TOTALSALES", async (req, res) => {
             INNER JOIN MenuItems m ON oi.ItemCode = m.ItemCode;
         `);
 
-        // SQL ka alias 'GrandTotal' tha, isliye yahan bhi GrandTotal likhenge
-        // Agar recordset khali ho to fallback ke liye 0 bhej dete hain
         const totalSales = result.recordset[0]?.GrandTotal || 0;
-        
-        // Response ko ek proper object mein bhejna zyada behtar hota hai
+
         res.json({ grandTotal: totalSales });
-        
+
     } catch (err) {
-        // Variable name fix kiya: err.message
         res.status(500).send(err.message);
     }
 });
@@ -104,4 +100,36 @@ router.post("/ADDFOODITEMS", async (req, res) => {
 
 
 
- module.exports = router;
+// ORDERS
+
+router.get("/ALLORDERS", async (req, res) => {
+    try {
+        let pool = await sql.connect(config);
+
+        let result = await pool.request().query(`
+            SELECT 
+                o.Order_ID,
+                c.NAME AS CustomerName,
+                c.PHONENUMBER,
+                o.OrderDate,
+                m.ItemName,
+                oi.Quantity,
+                m.Price,
+                (oi.Quantity * m.Price) AS TotalPrice
+            FROM Orders o
+            INNER JOIN CUSTOMER c ON o.CustomerID = c.CUSID
+            INNER JOIN OrderItems oi ON o.Order_ID = oi.Order_ID
+            INNER JOIN MenuItems m ON oi.ItemCode = m.ItemCode;
+        `);
+
+        res.json(result.recordset);
+
+    } catch (err) {
+        console.error("Database Error:", err);
+        res.status(500).send(err.message);
+    }
+});
+
+
+
+module.exports = router;
