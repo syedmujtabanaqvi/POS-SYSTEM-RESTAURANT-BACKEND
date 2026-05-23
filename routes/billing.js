@@ -11,7 +11,7 @@ router.post("/ADDUSERDETAILS", async (req, res) => {
 
     try {
         const { NAME, PHONENUMBER } = req.body;
-    
+
 
         let pool = await sql.connect(config);
         await pool.request()
@@ -109,7 +109,7 @@ router.get("/ORDERTOTAL", async (req, res) => {
             `);
 
         const totalAmount = result.recordset[0] ? result.recordset[0].FinalBillWithTax : 0;
-        
+
         res.json({ ordertotal: totalAmount });
 
     } catch (err) {
@@ -117,5 +117,27 @@ router.get("/ORDERTOTAL", async (req, res) => {
     }
 });
 
+router.get("/base-price", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool
+            .request()
+            .query(`
+               SELECT 
+            SUM(oi.Quantity * m.Price) AS TotalAmount
+            FROM OrderItems oi
+            INNER JOIN MenuItems m 
+            ON oi.ItemCode = m.ItemCode
+            WHERE oi.Order_ID = (SELECT MAX(Order_ID) FROM Orders);
+            `);
 
- module.exports = router;
+        const totalAmount = result.recordset[0] ;
+
+        res.json({ ordertotal: totalAmount });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+module.exports = router;
