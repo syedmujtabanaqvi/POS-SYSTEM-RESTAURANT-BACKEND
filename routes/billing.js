@@ -117,6 +117,31 @@ router.get("/ORDERTOTAL", async (req, res) => {
     }
 });
 
+
+router.get("/BILLINGITEMS", async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+        
+        let result = await pool
+            .request()
+            .query(`
+                SELECT 
+                    m.ItemName,
+                    oi.Quantity,
+                    m.Price,
+                    m.IMAGEURL
+                FROM OrderItems oi
+                INNER JOIN MenuItems m ON oi.ItemCode = m.ItemCode
+                WHERE oi.Order_ID = (SELECT MAX(Order_ID) FROM Orders);
+            `);
+
+        res.json(result.recordset); 
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
 router.get("/base-price", async (req, res) => {
     try {
         const pool = await sql.connect(config);
