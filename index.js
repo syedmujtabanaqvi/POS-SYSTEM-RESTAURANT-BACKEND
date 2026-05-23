@@ -11,11 +11,12 @@ app.use(express.json());
 const userRouts = require("./routes/user")
 const LoginRouts = require("./routes/login")
 const adminRouts = require("./routes/admin")
-
+const billingRouts = require("./routes/billing")
 
 app.use("/admin",adminRouts)
 app.use("/",LoginRouts)
 app.use("/user",userRouts)
+app.use("/Biling",billingRouts)
 
 app.listen(5000, () => {
     console.log("running");

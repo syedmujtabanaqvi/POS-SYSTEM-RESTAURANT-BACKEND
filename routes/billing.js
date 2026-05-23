@@ -77,69 +77,6 @@ router.get("/GETCURRENTID", async (req, res) => {
 });
 
 
-
-router.post("/GENERATEORDERID", async (req, res) => {
-
-    try {
-
-        const { CustomerID } = req.body;
-
-        let pool = await sql.connect(config);
-
-        const result = await pool.request()
-            .input("CustomerID", sql.Int, CustomerID)
-            .query(`
-                INSERT INTO Orders (CustomerID)
-                OUTPUT INSERTED.Order_ID
-                VALUES (@CustomerID)
-            `);
-
-        const orderId = result.recordset[0].Order_ID;
-
-        res.json({
-            success: true,
-            Order_ID: orderId
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            error: err.message
-        });
-
-    }
-});
-
-// SEND ORDER ITEMS TO DB 
-router.post("/SENDORDERITEMS", async (req, res) => {
-    try {
-
-        const { OrderItems } = req.body;
-
-        let pool = await sql.connect(config);
-
-        for (let item of OrderItems) {
-
-            await pool.request()
-                .input("Order_ID", sql.BigInt, item.Order_ID)
-                .input("ItemCode", sql.Int, item.ItemCode)
-                .input("Quantity", sql.Int, item.Quantity)
-                .query(`
-                    INSERT INTO OrderItems 
-                    (Order_ID, ItemCode, Quantity)  
-                    VALUES (@Order_ID, @ItemCode, @Quantity)
-                `);
-        }
-
-        res.json({ message: "Order items saved" });
-
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
-
 // GET PHONE NUMBER
 
 router.get("/GETPHONENUMBRT", async (req, res) => {
@@ -156,5 +93,9 @@ router.get("/GETPHONENUMBRT", async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
+
+
+
 
  module.exports = router;
