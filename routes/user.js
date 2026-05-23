@@ -65,33 +65,38 @@ router.get("/GETCURRENTID", async (req, res) => {
 
         let result = await pool
             .request()
-            .query("SELECT MAX(Order_ID) FROM Orders");
+            .query("SELECT MAX(CUSID) as currentId FROM CUSTOMER");
 
         res.json({ 
+            success: true,
             currentId: result.recordset[0].currentId || 0 
         });
 
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
 
 
 router.post("/GENERATEORDERID", async (req, res) => {
-
     try {
-
         const { CustomerID } = req.body;
 
-        let pool = await sql.connect(config);
+        if (!CustomerID) {
+            return res.status(400).json({
+                success: false,
+                error: "CustomerID is required"
+            });
+        }
 
+        let pool = await sql.connect(config);
         const result = await pool.request()
             .input("CustomerID", sql.Int, CustomerID)
             .query(`
-                INSERT INTO Orders (CustomerID)
-                OUTPUT INSERTED.Order_ID
-                VALUES (@CustomerID)
+                INSERT INTO Orders (CustomerID, OrderDate) 
+                OUTPUT INSERTED.Order_ID 
+                VALUES (@CustomerID, GETDATE())
             `);
 
         const orderId = result.recordset[0].Order_ID;
@@ -102,12 +107,10 @@ router.post("/GENERATEORDERID", async (req, res) => {
         });
 
     } catch (err) {
-
         res.status(500).json({
             success: false,
             error: err.message
         });
-
     }
 });
 
