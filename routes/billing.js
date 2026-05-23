@@ -62,16 +62,16 @@ router.get("/username", async (req, res) => {
 router.get("/GETCURRENTID", async (req, res) => {
     try {
         const pool = await sql.connect(config);
-
         let result = await pool
             .request()
-            .query("SELECT MAX(Order_ID) FROM Orders");
+            .query("SELECT ISNULL(MAX(Order_ID), 0) AS CurrentOrderID FROM Orders");
 
-        res.json({ 
-            currentId: result.recordset[0].currentId || 0 
-        });
+        let latestId = result.recordset[0].CurrentOrderID;
+
+        res.json({ currentId: latestId });
 
     } catch (err) {
+        console.error("Database Error:", err);
         res.status(500).send(err.message);
     }
 });
