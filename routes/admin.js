@@ -132,4 +132,39 @@ router.get("/ALLORDERS", async (req, res) => {
 
 
 
+router.put("/UPDATEFOODITEM/:id", async (req, res) => {
+    try {
+        const itemCode = req.params.id;
+        const { ItemName, Price, Category, Description, IMAGEURL, IsAvailable } = req.body;
+
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+            .input("ItemCode", sql.Int, itemCode)
+            .input("ItemName", sql.VarChar, ItemName)
+            .input("Price", sql.Int, Price)
+            .input("Category", sql.VarChar, Category)
+            .input("Description", sql.VarChar, Description)
+            .input("IsAvailable", sql.Int, IsAvailable) // Sahi kiya: sql.VarChar ko sql.Int kiya
+            .input("IMAGEURL", sql.VarChar, IMAGEURL)
+            .query(`
+                UPDATE MenuItems 
+                SET ItemName = @ItemName, 
+                    Price = @Price, 
+                    Category = @Category, 
+                    Description = @Description, 
+                    IMAGEURL = @IMAGEURL, 
+                    IsAvailable = @IsAvailable 
+                WHERE ItemCode = @ItemCode
+            `);
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Food item nahi mila!" });
+        }
+
+        return res.json({ message: "Updated successfully" });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
